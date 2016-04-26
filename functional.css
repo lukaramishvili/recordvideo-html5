@@ -29,6 +29,7 @@
 .flowplayer.is-ipad video{-webkit-transform:translateX(-2048px);}
 .is-ready.flowplayer.is-ipad video{-webkit-transform:translateX(0)}
 .flowplayer .fp-player{position:absolute;top:0;left:0;width:100%;height:100%}
+.flowplayer .fp-player+a{opacity:0!important;pointer-events:none!important;}
 .flowplayer .fp-engine,.flowplayer .fp-ui,.flowplayer .fp-message{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;z-index:1}
 .flowplayer .fp-ui{z-index:11}
 .flowplayer .fp-message{display:none;text-align:center;padding-top:5%;cursor:default;}
