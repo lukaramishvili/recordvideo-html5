@@ -54,8 +54,16 @@
             padding-top: 0;
         }
         
-        .recordrtc video {
-            width: 70%;
+	
+	#videos-container {
+	    position: relative; width: 70%; margin: 0 auto;
+	}
+        .recordrtc video#source-video {
+            width: 100%;
+        }
+        .recordrtc video#output-video {
+            width: 20%; position: absolute; right: 50px; top: 50px;
+	    background: white;
         }
         
         .recordrtc option[disabled] {
@@ -82,12 +90,18 @@
             
             <div style="text-align: center; display: none;">
                 <button id="save-to-disk">Save as</button>
+                <button id="play-saved-video">Play saved video</button>
                 <button id="open-new-tab">New Tab</button>
             </div>
             
             <br>
 
-            <video controls muted></video>
+	    <div id="videos-container">
+	      <video id="source-video">
+		<source src="source.mp4" type="video/mp4">
+	      </video>
+              <video muted id="output-video"></video>
+	    </div>
         </section>
         
         <script>
@@ -128,7 +142,7 @@
             var recordingDIV = document.querySelector('.recordrtc');
             var recordingMediaOptions = ['record-audio-plus-video','record-video','record-audio','record-screen'];
             var recordingMedia = 'record-audio-plus-video';
-            var recordingPlayer = recordingDIV.querySelector('video');
+            var recordingPlayer = recordingDIV.querySelector('#output-video');
             var mediaContainerFormatOptions = ["Webm","Mp4","WAV","Ogg","Gif"];
             var mediaContainerFormat = "Webm";
 
@@ -193,6 +207,7 @@
                 
                 var commonConfig = {
                     onMediaCaptured: function(stream) {
+                        //start recording
                         button.stream = stream;
                         if(button.mediaCapturedCallback) {
                             button.mediaCapturedCallback();
@@ -201,13 +216,22 @@
                         button.innerHTML = 'დამთავრება';
 			button.recording = true;
                         button.disabled = false;
+	                //also start video in sync with the recording
+	                document.querySelector('#source-video').play();
                     },
                     onMediaStopped: function() {
+                        //stop recording
                         button.innerHTML = 'ჩაწერა';
                         
                         if(!button.disableStateWaiting) {
                             button.disabled = false;
                         }
+	                //don't autoplay the recorded video
+	                document.querySelector('#output-video').pause();
+	                document.querySelector('#output-video').currentTime = 0;
+	                //also stop/rewind source video when done recording
+	                document.querySelector('#source-video').pause();
+	                document.querySelector('#source-video').currentTime = 0;
                     },
                     onMediaCapturingFailed: function(error) {
                         if(error.name === 'PermissionDeniedError' && !!navigator.mozGetUserMedia) {
@@ -659,6 +683,25 @@
                     if(!recordRTC) return alert('No recording found.');
                     
                     recordRTC.save();
+                };
+
+                recordingDIV.querySelector('#play-saved-video').onclick = function() {
+                    if(!recordRTC) return alert('No recording found.');
+                    
+                    //recordRTC.save();
+	            //play together the source video (no audio) and the recorded video
+	            document.querySelector('#source-video').currentTime = 0;
+	            document.querySelector('#source-video').muted = true;
+	            document.querySelector('#source-video').removeAttribute('muted');
+	            document.querySelector('#source-video').play();
+	            var stopSourceWhenOutputStops = function(){
+	                document.querySelector('#output-video').removeEventListener('ended', stopSourceWhenOutputStops, false);
+	                document.querySelector('#source-video').pause();
+	                document.querySelector('#source-video').currentTime = 0;
+	            };
+	            document.querySelector('#output-video').addEventListener('ended', stopSourceWhenOutputStops);
+	            document.querySelector('#output-video').currentTime = 0;
+	            document.querySelector('#output-video').play();
                 };
                 
                 recordingDIV.querySelector('#open-new-tab').onclick = function() {
