@@ -278,6 +278,8 @@
                             }
                             
                             recordingPlayer.src = url;
+			    //play() shouldn't be here but if commented and substituted
+			    //|-> with pause(), it still tries to play #output-video
                             recordingPlayer.play();
 
                             recordingPlayer.onended = function() {
@@ -684,7 +686,7 @@
                     if(!recordRTC) return alert('No recording found.');
                     
                     recordRTC.save();
-                };
+                };/* end #save-to-disk onclick */
 
                 recordingDIV.querySelector('#play-saved-video').onclick = function() {
                     if(!recordRTC) return alert('No recording found.');
@@ -703,42 +705,57 @@
 	            document.querySelector('#output-video').addEventListener('ended', stopSourceWhenOutputStops);
 	            document.querySelector('#output-video').currentTime = 0;
 	            document.querySelector('#output-video').play();
-                };
+                };/* end #play-saved-video onclick */
 
                 recordingDIV.querySelector('#btn-upload').onclick = function() {
                     if(!recordRTC) return alert('No recording found.');
                     
                     //recordRTC.save();
-/* start upload code */
+		    /* start upload code */
+		    var id = Date.now();
 	            var fileType = 'video'; // or "audio"
-var fileName = 'ABCDEF.webm';  // or "wav"
-
-var formData = new FormData();
-formData.append(fileType + '-filename', fileName);
-formData.append(fileType + '-blob', blob);
-
-xhr('/RecordRTC/PostRecordedAudioVideo', formData, function (fName) {
-    window.open(location.href + 'uploads/' + fName);
-});
-
-function xhr(url, data, callback) {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState == 4 && request.status == 200) {
-            callback(location.href + request.responseText);
-        }
-    };
-    request.open('POST', url);
-    request.send(data);
-}
-/* end upload code */
-                };
+		    var fileName = id + '.webm';  // or "wav"
+		    var blob = recordRTC.blob;
+		    
+		    var formData = new FormData();
+		    //formData.append(fileType + '-filename', fileName);
+		    //formData.append(fileType + '-blob', blob);
+		    formData.append('filename', fileName);
+		    formData.append('file', blob);
+		    
+		    xhr('http://192.168.88.107:5000/Video/UploadVideo', formData, function (result) {
+			//window.open(location.href + 'uploads/' + fName);
+			//window.open(fName);
+			console.log(JSON.parse(result));
+		    });
+		    
+		    function xhr(url, data, callback) {
+			var request = new XMLHttpRequest();
+			request.onreadystatechange = function () {
+			    if (request.readyState == 4 && request.status == 200) {
+				callback(request.responseText);
+			    }
+			};
+			request.onprogress = function(oEvent) {console.log(oEvent);
+			    if (oEvent.lengthComputable) {
+				var percentComplete = oEvent.loaded / oEvent.total;
+				//
+				console.log(percentComplete);
+			    } else {
+				//error
+			    }
+			};
+			request.open('POST', url);
+			request.send(data);
+		    }
+		    /* end upload code */
+                };/* end #btn-upload onclick */
                 
                 recordingDIV.querySelector('#open-new-tab').onclick = function() {
                     if(!recordRTC) return alert('No recording found.');
                     
                     window.open(recordRTC.toURL());
-                };
+                };/* end #open-new-tab onclick */
             }
         </script>
 
