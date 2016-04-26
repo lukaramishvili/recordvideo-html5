@@ -91,6 +91,7 @@
             <div style="text-align: center; display: none;">
                 <button id="save-to-disk">Save as</button>
                 <button id="play-saved-video">Play saved video</button>
+                <button id="btn-upload">Upload</button>
                 <button id="open-new-tab">New Tab</button>
             </div>
             
@@ -702,6 +703,35 @@
 	            document.querySelector('#output-video').addEventListener('ended', stopSourceWhenOutputStops);
 	            document.querySelector('#output-video').currentTime = 0;
 	            document.querySelector('#output-video').play();
+                };
+
+                recordingDIV.querySelector('#btn-upload').onclick = function() {
+                    if(!recordRTC) return alert('No recording found.');
+                    
+                    //recordRTC.save();
+/* start upload code */
+	            var fileType = 'video'; // or "audio"
+var fileName = 'ABCDEF.webm';  // or "wav"
+
+var formData = new FormData();
+formData.append(fileType + '-filename', fileName);
+formData.append(fileType + '-blob', blob);
+
+xhr('/RecordRTC/PostRecordedAudioVideo', formData, function (fName) {
+    window.open(location.href + 'uploads/' + fName);
+});
+
+function xhr(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState == 4 && request.status == 200) {
+            callback(location.href + request.responseText);
+        }
+    };
+    request.open('POST', url);
+    request.send(data);
+}
+/* end upload code */
                 };
                 
                 recordingDIV.querySelector('#open-new-tab').onclick = function() {

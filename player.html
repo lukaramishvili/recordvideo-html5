@@ -1,0 +1,126 @@
+
+
+<!doctype html>
+
+<html>
+
+<head>
+   <meta charset="utf-8">
+
+   <title>Complete setup · Standalone demo · Flowplayer</title>
+
+   <!-- optimize mobile versions -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <!-- The "functional" skin, "functional.css", "minimalist.css" and "playful.css" are available -->
+   <link rel="stylesheet" href="functional.css">
+
+   <!-- Minimal styling for this standalone page (can be removed) -->
+   <style>
+   body {
+      font-family: "myriad pro", tahoma, verdana, arial, sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+   }
+   #content {
+      margin: 50px auto;
+      max-width: 982px;
+   }
+   
+</style>
+
+   <!-- CSS for this demo -->
+   <style type="text/css">
+     #complete {
+         background-image:url("source.jpg");
+     }
+     #complete .fp-logo {
+         /* force logo to be visible */
+         display:block;opacity:1;left:3%;
+     }
+     #complete .fp-logo img {
+         width:100%;
+     }
+     @media (-webkit-min-device-pixel-ratio:2),(min-resolution:2dppx) {
+         #complete{
+             background-image:url("source@2x.jpg");
+         }
+     }
+   </style>
+   
+      <!-- Flowplayer depends on jquery for video tag based setups -->
+   <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+   
+   <!-- Flowplayer, commercial version-->
+   <script src="//releases.flowplayer.org/6.0.5/commercial/flowplayer.min.js"></script>
+
+
+
+<!-- hlsjs plugin -->
+<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js"></script>
+
+<!-- quality selector assets -->
+<link rel="stylesheet" href="//releases.flowplayer.org/quality-selector/flowplayer.quality-selector.css">
+<script src="//releases.flowplayer.org/quality-selector/flowplayer.quality-selector.min.js"></script>
+
+<script>
+/*
+   Commercial version of flowplayer with
+   - domain specific license key
+   - custom brand name
+   - custom logo
+   - analytics
+*/
+/*flowplayer.conf = {
+    key: "$130763224349944",
+    brand: {
+        text: "My Brand",
+        showOnOrigin: true
+    },
+    logo: "//flowplayer.org/media/img/mylogo.png",
+    analytics: "UA-27182341-1",
+    splash: true
+};*/
+</script>
+
+</head>
+
+<body>
+<div id="content">
+
+<!--
+   Commercial version of flowplayer with
+   - domain specific license key                (global config)
+   - custom logo                                (global config)
+   - custom brand name                          (global config)
+   - analytics                                  (global config)
+   - custom context menu
+   - 4 HLS levels for manual quality selection with hlsjs engine
+   - 4 resolutions for manual quality selection
+-->
+<div id="complete" class="flowplayer"
+     data-hls-qualities="1,3,6,7"
+     data-qualities="720p,1080p"
+     data-default-quality="1080p"
+     data-ratio="0.5625"
+     data-rtmp="rtmp://s3b78u0kbtx79q.cloudfront.net/cfx/st">
+
+   <video data-title="Recorded video">
+      <!-- <source type="application/x-mpegurl" src="//stream.flowplayer.org/functional.m3u8"> -->
+      <!-- <source type="video/webm" src="//stream.flowplayer.org/functional.webm"> -->
+      <source type="video/mp4" src="source.mp4">
+      <!-- <source type="video/flash" src="mp4:functional"> -->
+   </video>
+
+   <div class="fp-context-menu">
+      <ul>
+         <li>Custom context menu item</li>
+      </ul>
+   </div>
+</div>
+
+</div><!--/end content -->
+</body>
+
+</html>
