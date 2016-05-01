@@ -402,9 +402,9 @@
 			//we tell the server to create a Video in db and tell us the id
 			//then we push the jpeg's and audio to that id
 			this.httpGet({
-				url: this.httpPostDest + "/video/initializeupload?refresh=" + (new Date().time),
+				url: this.httpPostDest + "/Video/Initializeupload?refresh=" + (new Date().time),
 				success: function (data) {
-					var video_id: int = data;
+					var video_id: String = data;
 					var framesUploaded: int = 0;
 					var audioUploaded = false;
 					var processVideoIfAllUploadsFinished: Function = function () {
@@ -416,7 +416,9 @@
 								//also if we don't wait for finalizeupload, video processing may interrupt
 								// /video/finalizeupload should spawn processing separately, so that if the
 								// http request gets interrupted from flash side(navigating), processing still finishes
-								flash.net.navigateToURL(new URLRequest("/video/view/" + video_id), "_self");
+								//
+								//flash.net.navigateToURL(new URLRequest("/Video/view/" + video_id), "_self");
+								ExternalInterface.call("finalizeUploadCallback", video_id.toString());
 							});
 						}
 					}
@@ -482,17 +484,17 @@
 		//	return this.loadHttpGetResult(this.httpPostDest + "/video/initializeupload");
 		//}
 
-		private function uploadFrame(video_id: int, frame: ByteArray, callback: Function = null) {
-			this.postByteArray(this.httpPostDest + "/video/uploadframe/" + video_id, frame, callback);
+		private function uploadFrame(video_id: String, frame: ByteArray, callback: Function = null) {
+			this.postByteArray(this.httpPostDest + "/Video/Uploadframe/" + video_id, frame, callback);
 		}
 
-		private function uploadAudio(video_id: int, audio_data: ByteArray, callback: Function = null) {
-			this.postByteArray(this.httpPostDest + "/video/uploadaudio/" + video_id, audio_data, callback);
+		private function uploadAudio(video_id: String, audio_data: ByteArray, callback: Function = null) {
+			this.postByteArray(this.httpPostDest + "/video/Uploadaudio/" + video_id, audio_data, callback);
 		}
 
-		private function finalizeUpload(video_id: int, callback: Function) {
+		private function finalizeUpload(video_id: String, callback: Function) {
 			this.httpGet({
-				url: this.httpPostDest + "/video/finalizeupload/" + video_id,
+				url: this.httpPostDest + "/Video/Finalizeupload/" + video_id,
 				data: {
 					title: titleInput.text
 				},
