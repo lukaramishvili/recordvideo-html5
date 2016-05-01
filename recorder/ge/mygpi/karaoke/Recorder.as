@@ -119,11 +119,13 @@
 			frames = new Array();
 
 			overlayBg = getOverlayBg();
+			overlayBg.visible = false;
 
 			audioVis = new MovieClip();
 			audioVis.visible = false;
 
 			saveBtn = getSaveBtn();
+			saveBtn.visible = false;
 
 			preloader = getPreloader();
 
@@ -131,6 +133,7 @@
 			titleInput.visible = false;
 
 			effectsToggle = getEffectsToggle();
+			effectsToggle.visible = false;
 
 			//TODO both lines
 			//conn = new NetConnection();
@@ -165,6 +168,9 @@
 				
 				ExternalInterface.addCallback("startFlashRecording", function(){
 					startRecording();
+				});
+				ExternalInterface.addCallback("stopFlashRecording", function(){
+					stopRecording();
 				});
 			} else {
 				//TODO: error message to user: you must allow camera and mic access
@@ -365,7 +371,6 @@
 				that.effectsEnabled = !that.effectsEnabled;
 				ckb.text = that.effectsEnabled ? "☑ ეფექტი" : "☐ ეფექტი";
 			});
-			ckb.visible = false;
 			container.addChild(ckb);
 			container.x = 0;
 			container.y = 97;
