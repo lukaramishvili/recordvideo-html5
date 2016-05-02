@@ -58,8 +58,9 @@
 		private var effectsEnabled = false;
 
 		private var camera: Camera;
-		private var camW: int = Camera.getCamera().width;
-		private var camH: int = Camera.getCamera().height;
+		//pass 64000/48000 here and flash will detect max quality available
+		private var camW: int = 852;//Camera.getCamera().width;
+		private var camH: int = 480;//Camera.getCamera().height;
 		private var video: Video;
 		private var renderData: BitmapData;
 		private var render: Bitmap;
@@ -99,11 +100,13 @@
 			this.recW = argRecW;
 			this.recH = argRecH;
 			camera = Camera.getCamera();
-			camera.setMode(camW, camH, 30);
+			camera.setMode(camW, camH, 24);
+			camW = camera.width;
+			camH = camera.height;
 			mic = Microphone.getMicrophone();
 			mic.setSilenceLevel(0);
 			mic.gain = 100;
-			mic.setLoopBack(true);
+			mic.setLoopBack(false);
 			mic.setUseEchoSuppression(true);
 			//don't play sound that's being recorded
 			var st: SoundTransform = new SoundTransform(0);
@@ -113,6 +116,7 @@
 			Security.showSettings("2");
 			video = new Video(camW, camH);
 			video.attachCamera(camera);
+			video.smoothing = true;
 			renderData = new BitmapData(camW, camH);
 			render = new Bitmap(renderData);
 			render.name = "render";
@@ -142,18 +146,26 @@
 
 			if (camera != null && mic != null) {
 
+				//cameraAllowedCallback will be called from updateRender when real capture data appears
 				saveBtn.addEventListener(MouseEvent.CLICK, toggleRecord);
+				//this listener will be removed in stopRecording
 				addEventListener(Event.ENTER_FRAME, updateRender);
 				//addEventListener(Event.ENTER_FRAME, drawAudioVis);
 				//audioRecorder.addEventListener(RecordingEvent.RECORDING, whileRecordingAudio);
 
-
+				//replaced bitmap viewing with actual video
 				render.x = render.y = 0;
 				//render.width = this.width;
 				//render.height = this.height;
 				render.visible = false;
+				video.x = video.y = 0;
+				//video.width = this.width;
+				//video.height = this.height;
+				video.visible = false;
+				
 				preloader.visible = false;
 				addChild(render);
+				addChild(video);
 				addChild(overlayBg);
 				addChild(audioVis);
 				addChild(titleInput);
@@ -382,7 +394,9 @@
 			MovieClip(saveBtn.getChildByName("save_btn_start")).visible = false;
 			MovieClip(saveBtn.getChildByName("save_btn_stop")).visible = true;
 			audioRecorder.record();
-			this.autoStopTimeout = setTimeout(stopRecording, 60000);
+			this.autoStopTimeout = setTimeout(stopRecording, 120000);
+			
+			ExternalInterface.call("window.afterStartRecording");
 		}
 
 		public function stopRecording() {
@@ -397,6 +411,11 @@
 			effectsToggle.visible = false;
 			audioVis.visible = false;
 			preloader.visible = true;
+			//hide camera preview after recording has stopped
+			removeEventListener(Event.ENTER_FRAME, updateRender);
+			//render.visible = false;//replaced bitmap viewing with actual video
+			video.visible = false;
+			
 			ExternalInterface.call("window.afterStopRecording");
 			//TODO: check user auth response
 			//we tell the server to create a Video in db and tell us the id
@@ -540,20 +559,30 @@
 		public function alert(msg:Object){
 			ExternalInterface.call("alert", msg.toString());
 		}
+		
+		public var cameraAllowedCallbackCalled:Boolean = false;
 
 		public function updateRender(e: Event): void {
 			var videoFrame: BitmapData = new BitmapData(camW, camH);
 			videoFrame.draw(video);
+			var videoFrameBitmap = new Bitmap(videoFrame);
 			if (this.effectsEnabled) {
 				applyFilter(videoFrame, "tunnel");
 			}
-			render.bitmapData.copyPixels(videoFrame, new Rectangle(0, 0, camW, camH), new Point());
+			//following line: replaced bitmap viewing with actual video
+			//render.bitmapData.copyPixels(videoFrame, new Rectangle(0, 0, camW, camH), new Point());
 			//only show "render" after camera access was allowed, before camera access it draws white frames
 			//also check for white pixels to avoid a white flicker after camera allowed but before camera gives any data
-			if (camera.muted == false && render.bitmapData.getPixel(0, 0) != 0xFFFFFF) {
-				render.visible = true;
+			if (camera.muted == false && videoFrameBitmap.bitmapData.getPixel(0, 0) != 0xFFFFFF) {
+				//render.visible = true;//replaced bitmap viewing with actual video
+				video.visible = true;
+				if(!cameraAllowedCallbackCalled){
+					cameraAllowedCallbackCalled = true;
+					ExternalInterface.call("cameraAllowedCallback");
+				}
 			} else {
-				render.visible = false;
+				//render.visible = false;//replaced bitmap viewing with actual video
+				video.visible = false;
 			}
 			if (this.recording) {
 				//var pixelData: ByteArray = new ByteArray();
