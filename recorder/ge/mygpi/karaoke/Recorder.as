@@ -278,10 +278,12 @@
 			cap.setTextFormat(fmt);
 			cap.x = 0 - cap.width / 2;
 			cap.y = 30;
-			preloader.addChild(cap);
+			//preloader.addChild(cap);//don't add title
 
-			preloader.x = this.centerX;
-			preloader.y = 50;
+			preloader.x = this.recW * 1.9;
+			preloader.y = this.recH * 1.1;
+			preloader.width = this.recW * 3.55;
+			preloader.height = this.recH * 2.8 * heightProportion;
 			return preloader;
 		}
 
