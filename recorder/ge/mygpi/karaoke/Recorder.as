@@ -468,7 +468,7 @@
 			_request.method = URLRequestMethod.POST;
 			_request.data = data;
 			loader.addEventListener(IOErrorEvent.IO_ERROR, function (e: IOErrorEvent): void {
-				trace(e.text);
+				ExternalInterface.call("console.log", "i/o error sending to " + dest + " : " + e.text);
 			});
 			loader.addEventListener(Event.COMPLETE, function (e: Event) {
 				if (callback != null) {
